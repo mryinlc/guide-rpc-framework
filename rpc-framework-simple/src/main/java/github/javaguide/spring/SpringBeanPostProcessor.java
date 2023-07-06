@@ -20,6 +20,14 @@ import java.lang.reflect.Field;
 
 /**
  * call this method before creating the bean to see if the class is annotated
+ * 实现了BeanPostProcessor接口的类会在Spring bean初始化前后被调用
+ * postProcessBeforeInitialization 会在初始化前被调用
+ * postProcessAfterInitialization 会在初始化后被调用
+ * <p>
+ * Spring bean的实例化和初始化的区别：
+ * 实例化：指创建类实例（对象）的过程。比如使用构造方法new对象，为对象在内存中分配空间。（要创建对象，但是并未生成对象）
+ * 初始化：指为类中各个类成员赋初始值的过程（包括执行构造函数以及初始化代码块等），是类生命周期中的一个阶段。
+ * 简单理解为对象中的属性赋值的过程。（对象已经生成，为其属性赋值）
  *
  * @author shuang.kou
  * @createTime 2020年07月14日 16:42:00
@@ -39,6 +47,22 @@ public class SpringBeanPostProcessor implements BeanPostProcessor {
     @SneakyThrows
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        /*if (bean.getClass().isAnnotationPresent(RpcService.class)) {
+            log.info("[{}] is annotated with  [{}]", bean.getClass().getName(), RpcService.class.getCanonicalName());
+            // get RpcService annotation
+            RpcService rpcService = bean.getClass().getAnnotation(RpcService.class);
+            // build RpcServiceProperties
+            RpcServiceConfig rpcServiceConfig = RpcServiceConfig.builder()
+                    .group(rpcService.group())
+                    .version(rpcService.version())
+                    .service(bean).build();
+            serviceProvider.publishService(rpcServiceConfig);
+        }*/
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (bean.getClass().isAnnotationPresent(RpcService.class)) {
             log.info("[{}] is annotated with  [{}]", bean.getClass().getName(), RpcService.class.getCanonicalName());
             // get RpcService annotation
@@ -50,11 +74,6 @@ public class SpringBeanPostProcessor implements BeanPostProcessor {
                     .service(bean).build();
             serviceProvider.publishService(rpcServiceConfig);
         }
-        return bean;
-    }
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         Class<?> targetClass = bean.getClass();
         Field[] declaredFields = targetClass.getDeclaredFields();
         for (Field declaredField : declaredFields) {
@@ -72,7 +91,6 @@ public class SpringBeanPostProcessor implements BeanPostProcessor {
                     e.printStackTrace();
                 }
             }
-
         }
         return bean;
     }

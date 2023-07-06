@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * scan and filter specified annotations
+ * 通过ImportBeanDefinitionRegistrar接口，可以手动向ioc容器注入bean
+ * 该接口的使用参考 <a href="https://zhuanlan.zhihu.com/p/430837566" />
+ * 简单来说，只要使用@import接口导入实现类，便可以自动调用其中registerBeanDefinitions方法来注册bean
  *
  * @author shuang.kou
  * @createTime 2020年08月10日 22:12:00
@@ -32,14 +35,17 @@ public class CustomScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry beanDefinitionRegistry) {
+        // annotationMetadata 指代的是通过标注@import导入CustomScannerRegistrar的类的信息
         //get the attributes and values ​​of RpcScan annotation
         AnnotationAttributes rpcScanAnnotationAttributes = AnnotationAttributes.fromMap(annotationMetadata.getAnnotationAttributes(RpcScan.class.getName()));
         String[] rpcScanBasePackages = new String[0];
         if (rpcScanAnnotationAttributes != null) {
             // get the value of the basePackage property
+            // 获取@RpcScan注解的 basePackage 属性值
             rpcScanBasePackages = rpcScanAnnotationAttributes.getStringArray(BASE_PACKAGE_ATTRIBUTE_NAME);
         }
         if (rpcScanBasePackages.length == 0) {
+            // 如果@RpcScan中没有指定basePackage属性，则以 annotationMetadata 对应的类的 package 作为basePackage
             rpcScanBasePackages = new String[]{((StandardAnnotationMetadata) annotationMetadata).getIntrospectedClass().getPackage().getName()};
         }
         // Scan the RpcService annotation

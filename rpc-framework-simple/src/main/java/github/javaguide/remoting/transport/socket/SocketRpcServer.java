@@ -39,9 +39,9 @@ public class SocketRpcServer {
 
     public void start() {
         try (ServerSocket server = new ServerSocket()) {
+            CustomShutdownHook.getCustomShutdownHook().clearAll();
             String host = InetAddress.getLocalHost().getHostAddress();
             server.bind(new InetSocketAddress(host, PORT));
-            CustomShutdownHook.getCustomShutdownHook().clearAll();
             Socket socket;
             while ((socket = server.accept()) != null) {
                 log.info("client connected [{}]", socket.getInetAddress());

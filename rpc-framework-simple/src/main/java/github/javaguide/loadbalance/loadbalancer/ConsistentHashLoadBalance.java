@@ -31,13 +31,17 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
         ConsistentHashSelector selector = selectors.get(rpcServiceName);
         // check for updates
         if (selector == null || selector.identityHashCode != identityHashCode) {
+            // selector.identityHashCode != identityHashCode 则证明该service对应的服务提供者列表发生了变化，需要更新哈希映射
             selectors.put(rpcServiceName, new ConsistentHashSelector(serviceAddresses, 160, identityHashCode));
             selector = selectors.get(rpcServiceName);
         }
+        // selector底层的hash映射对应的都是提供同一个服务的provider，因此，需要尽量传入不同的key来调用不同的provider
         return selector.select(rpcServiceName + Arrays.stream(rpcRequest.getParameters()));
     }
 
+    // 基于一致性哈希实习 参考 https://www.xiaolincoding.com/os/8_network_system/hash.html
     static class ConsistentHashSelector {
+        // 基于红黑树实现的有序Map集合，其中的Entry基于key的顺序进行排序
         private final TreeMap<Long, String> virtualInvokers;
 
         private final int identityHashCode;
@@ -45,9 +49,10 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
         ConsistentHashSelector(List<String> invokers, int replicaNumber, int identityHashCode) {
             this.virtualInvokers = new TreeMap<>();
             this.identityHashCode = identityHashCode;
-
+            // 给每个真实节点创建160个虚拟节点
             for (String invoker : invokers) {
                 for (int i = 0; i < replicaNumber / 4; i++) {
+                    // 尽量使虚拟节点均匀分布
                     byte[] digest = md5(invoker + i);
                     for (int h = 0; h < 4; h++) {
                         long m = hash(digest, h);
@@ -58,15 +63,17 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
         }
 
         static byte[] md5(String key) {
+            // java.security.MessageDigest 单向文本加密 不论输入的文本多长，输出固定长度的hash值
             MessageDigest md;
             try {
                 md = MessageDigest.getInstance("MD5");
                 byte[] bytes = key.getBytes(StandardCharsets.UTF_8);
+                // 执行加密计算
                 md.update(bytes);
             } catch (NoSuchAlgorithmException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
-
+            // 获取加密结果
             return md.digest();
         }
 
@@ -80,12 +87,15 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
         }
 
         public String selectForKey(long hashCode) {
+            // tailMap(myKey, true) 获取TreeMap中key值大于等于myKey的所有项组成的map视图
             Map.Entry<Long, String> entry = virtualInvokers.tailMap(hashCode, true).firstEntry();
 
+            // 取一致性哈希逻辑环上的下一个虚拟节点
             if (entry == null) {
                 entry = virtualInvokers.firstEntry();
             }
 
+            // 返回真实节点，即 要调用的服务提供者地址
             return entry.getValue();
         }
     }
