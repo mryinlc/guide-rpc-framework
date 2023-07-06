@@ -38,6 +38,7 @@ public class KryoSerializer implements Serializer {
             Kryo kryo = kryoThreadLocal.get();
             // Object->byte:将对象序列化为byte数组
             kryo.writeObject(output, obj);
+            // 应该是由于使用了线程池，所以每次用完之后都要将kryoThreadLocal删除
             kryoThreadLocal.remove();
             return output.toBytes();
         } catch (Exception e) {

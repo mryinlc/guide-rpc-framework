@@ -95,12 +95,14 @@ public final class CuratorUtils {
                 log.error("clear registry for path [{}] fail", p);
             }
         });
-        log.info("All registered services on the server are cleared:[{}]", REGISTERED_PATH_SET.toString());
+        log.info("All registered services on the server are cleared:[{}]", REGISTERED_PATH_SET);
     }
 
     public static CuratorFramework getZkClient() {
         // check if user has set zk address
+        // RpcConfigEnum.RPC_CONFIG_PATH.getPropertyValue() 获取到的是配置文件名
         Properties properties = PropertiesFileUtil.readPropertiesFile(RpcConfigEnum.RPC_CONFIG_PATH.getPropertyValue());
+        // 获取zookeeper服务器地址，若配置文件中没有配置，则
         String zookeeperAddress = properties != null && properties.getProperty(RpcConfigEnum.ZK_ADDRESS.getPropertyValue()) != null ? properties.getProperty(RpcConfigEnum.ZK_ADDRESS.getPropertyValue()) : DEFAULT_ZOOKEEPER_ADDRESS;
         // if zkClient has been started, return directly
         if (zkClient != null && zkClient.getState() == CuratorFrameworkState.STARTED) {
