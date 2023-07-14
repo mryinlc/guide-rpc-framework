@@ -1,7 +1,6 @@
 package github.javaguide;
 
 import github.javaguide.annotation.RpcReference;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 /**

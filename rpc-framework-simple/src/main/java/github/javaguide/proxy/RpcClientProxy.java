@@ -9,7 +9,6 @@ import github.javaguide.remoting.dto.RpcResponse;
 import github.javaguide.remoting.transport.RpcRequestTransport;
 import github.javaguide.remoting.transport.netty.client.NettyRpcClient;
 import github.javaguide.remoting.transport.socket.SocketRpcClient;
-import io.netty.util.concurrent.Promise;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
