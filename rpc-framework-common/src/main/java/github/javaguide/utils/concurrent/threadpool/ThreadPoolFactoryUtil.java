@@ -71,6 +71,7 @@ public final class ThreadPoolFactoryUtil {
         });
     }
 
+    // 一个线程池就是一个 ExecutorService
     private static ExecutorService createThreadPool(CustomThreadPoolConfig customThreadPoolConfig, String threadNamePrefix, Boolean daemon) {
         ThreadFactory threadFactory = createThreadFactory(threadNamePrefix, daemon);
         return new ThreadPoolExecutor(customThreadPoolConfig.getCorePoolSize(), customThreadPoolConfig.getMaximumPoolSize(),

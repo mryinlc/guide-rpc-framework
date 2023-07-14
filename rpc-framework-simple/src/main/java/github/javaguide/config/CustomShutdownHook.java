@@ -26,11 +26,11 @@ public class CustomShutdownHook {
     public void clearAll() {
         log.info("addShutdownHook for clearAll");
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                InetSocketAddress inetSocketAddress = new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), NettyRpcServer.PORT);
-                CuratorUtils.clearRegistry(CuratorUtils.getZkClient(), inetSocketAddress);
-            } catch (UnknownHostException ignored) {
-            }
+            // try {
+            //     InetSocketAddress inetSocketAddress = new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), NettyRpcServer.PORT);
+            //     CuratorUtils.clearRegistry(CuratorUtils.getZkClient(), inetSocketAddress);
+            // } catch (UnknownHostException ignored) {
+            // }
             ThreadPoolFactoryUtil.shutDownAllThreadPool();
         }));
     }

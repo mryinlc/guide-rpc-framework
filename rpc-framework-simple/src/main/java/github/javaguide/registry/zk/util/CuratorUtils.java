@@ -40,6 +40,19 @@ public final class CuratorUtils {
     private CuratorUtils() {
     }
 
+    public static void createTempNode(CuratorFramework zkClient, String path) {
+        try {
+            if (zkClient.checkExists().forPath(path) != null) {
+                log.info("The node already exists. The node is:[{}]", path);
+            } else {
+                zkClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+                log.info("The node was created successfully. The node is:[{}]", path);
+            }
+        } catch (Exception e) {
+            log.error("create persistent node for path [{}] fail", path);
+        }
+    }
+
     /**
      * Create persistent nodes. Unlike temporary nodes, persistent nodes are not removed when the client disconnects
      *
@@ -50,7 +63,7 @@ public final class CuratorUtils {
             if (REGISTERED_PATH_SET.contains(path) || zkClient.checkExists().forPath(path) != null) {
                 log.info("The node already exists. The node is:[{}]", path);
             } else {
-                //eg: /my-rpc/github.javaguide.HelloService/127.0.0.1:9999
+                // eg: /my-rpc/github.javaguide.HelloService/127.0.0.1:9999
                 zkClient.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path);
                 log.info("The node was created successfully. The node is:[{}]", path);
             }

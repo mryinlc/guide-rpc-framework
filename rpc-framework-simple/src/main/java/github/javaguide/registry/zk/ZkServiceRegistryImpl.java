@@ -21,6 +21,7 @@ public class ZkServiceRegistryImpl implements ServiceRegistry {
         // inetSocketAddress.toString()的到的形式为  /ip:port   所以不用加 /
         String servicePath = CuratorUtils.ZK_REGISTER_ROOT_PATH + "/" + rpcServiceName + inetSocketAddress.toString();
         CuratorFramework zkClient = CuratorUtils.getZkClient();
-        CuratorUtils.createPersistentNode(zkClient, servicePath);
+        // CuratorUtils.createPersistentNode(zkClient, servicePath);
+        CuratorUtils.createTempNode(zkClient, servicePath);
     }
 }
